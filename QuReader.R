@@ -163,7 +163,5 @@ col_order<-c("case_id", "provincial_case_id", "age", "sex", "healthcare_facility
 cases_long<-cases_long[,col_order]
 
 #write to csv-> figure out how to export csv with special characters....
-write.csv(cases_long, "/Users/ib/Desktop/QC_cases/qc_cases.csv", row.names = FALSE, fileEncoding = "UTF-8")
-
-
+write.csv(cases_long, "/Users/ib/Desktop/qc_cases.csv", row.names = FALSE, fileEncoding = "UTF-8")
 
