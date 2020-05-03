@@ -36,7 +36,7 @@ case_summary <- case_summary %>% slice(-1) %>%
                                  rename(c("Regions"="Region","NumCases"="Total Cases")) %>%
                                  mutate(NumCases = str_replace_all(NumCases, "\\*+" ,"")) %>% 
                                  mutate(NumCases = as.numeric(NumCases)) %>%
-                                 mutate(Regions = recode(Regions, "Central" = "Central (excluding Saskatoon)", "South"="South (excluding Regina)"))
+                                 mutate(Regions = recode(Regions, "Central (excluding Saskatoon)" = "Central", "South (excluding Regina)" = "South"))
 
 #Download files in a dataframe from public sheet
 casest_1 <- read.csv("https://docs.google.com/spreadsheets/u/1/d/1D6okqtBS3S2NRC7GFVHzaZ67DuTw7LX49-fqSLwJyeo/export?format=csv&id=1D6okqtBS3S2NRC7GFVHzaZ67DuTw7LX49-fqSLwJyeo&gid=942958991",
