@@ -3,6 +3,8 @@
 #Written By: VH, IB
 #Date Modified: April 18th 2020
 
+## This code does not currently run given MB switch to tableau dashboard, without machine readable data table
+
 library(dplyr)
 library(stringr)
 library(rvest)
