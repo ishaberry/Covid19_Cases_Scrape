@@ -35,6 +35,7 @@ case_summary <- case_summary %>% slice(-1) %>%
                                  select("Region","Total Cases") %>% 
                                  rename(c("Regions"="Region","NumCases"="Total Cases")) %>%
                                  mutate(NumCases = str_replace_all(NumCases, "\\*+" ,"")) %>% 
+                                 mutate(NumCases = str_replace_all(NumCases, "¥" ,"")) %>% 
                                  mutate(NumCases = as.numeric(NumCases)) %>%
                                  mutate(Regions = recode(Regions, "Central (excluding Saskatoon)" = "Central", "South (excluding Regina)" = "South"))
 
