@@ -154,6 +154,3 @@ cases_long<-cases_long[,col_order]
 #write to csv-> figure out how to export csv with special characters....
 write.csv(cases_long, "/Users/vinyas/Desktop/sk_cases.csv", row.names = FALSE, fileEncoding = "UTF-8")
 
-
-
-
