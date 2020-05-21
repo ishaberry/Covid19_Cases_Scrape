@@ -8,34 +8,40 @@ library(stringr)
 library(rvest)
 library(xml2)
 library(lubridate)
+library(RSelenium)
 
 #Pull into tibble
-webpage_url <- "https://www.saskatchewan.ca/government/health-care-administration-and-provider-resources/treatment-procedures-and-guidelines/emerging-public-health-issues/2019-novel-coronavirus/cases-and-risk-of-covid-19-in-saskatchewan"
-webpage <- xml2::read_html(webpage_url)
-case_summary <- rvest::html_table(webpage)[[1]] %>% tibble::as_tibble()
+#Note that SK is using Javascript on the site so need to use Selenium to run a headless browser to pull the tables
+rd <- rsDriver()
 
-#The date in SL is not in the table itself but is rather in an strong HTML tag above the table 
-#Example: <strong>Summary of Persons with COVID-19 in Saskatchewan (as of April 18, 2020)</strong>
-#It is the 4th strong element on the page
-strong_text <- rvest::html_nodes(webpage, "strong")[4] %>% toString()
-#Month starts on character 18
-dateString <- substring(strong_text, 65) 
+rd$client$navigate('https://dashboard.saskatchewan.ca/health-wellness/covid-19/cases#cumulative-cases-tab')
+h <- rd$client$getPageSource()
+h <- h[[1]] %>% read_html()
+
+rd$client$close()
+rd$server$stop()
+rm(rd)
+
+case_summary <- h %>% html_node(xpath='//*[@id="table1-2"]/table') %>% html_table() %>% as_tibble()
+table_title <- h %>% html_node(xpath='//*[@id="table1-2"]/h5') %>% html_text() %>% toString()
+
+#Month starts on character 57
+dateString <- substring(table_title, 57) 
 #Drop everything after the day
 dateString <- word(dateString, sep=",")
 report_date<-as.Date(dateString, format="%B %d")
 
 #Clean original tibble:
-# - turn first row into col headings
 # - pull out only total cases
 # - rename to NumCases as in QC script
+# - use regex to remove any chars used for special notes (e.g. *, yen, superscript)
 # - cast cases into numeric 
 # - rename any discrepanices to match our dataset
-names(case_summary) <- case_summary %>% slice(1) %>% unlist()
-case_summary <- case_summary %>% slice(-1) %>% 
+case_summary <- case_summary %>% slice(1:6) %>% 
                                  select("Region","Total Cases") %>% 
                                  rename(c("Regions"="Region","NumCases"="Total Cases")) %>%
-                                 mutate(NumCases = str_replace_all(NumCases, "\\*+" ,"")) %>% 
-                                 mutate(NumCases = str_replace_all(NumCases, "¥" ,"")) %>% 
+                                 mutate(NumCases = str_replace_all(NumCases, "\\*¥+" ,"")) %>% 
+                                 mutate(NumCases = str_replace_all(NumCases, "[\u2070-\u209f\u00b0-\u00be]+" ,"")) %>% 
                                  mutate(NumCases = as.numeric(NumCases)) %>%
                                  mutate(Regions = recode(Regions, "Central (excluding Saskatoon)" = "Central", "South (excluding Regina)" = "South"))
 
